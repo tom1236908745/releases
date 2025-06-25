@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main
-
+permissions:
+  contents: write
+  
 jobs:
   create-release:
     name: Create Release on main push
@@ -21,21 +23,33 @@ jobs:
       - name: Determine next tag
         id: next_tag
         run: |
-          # セマンティックバージョンのベースを定義（必要なら変更可能）
-          BASE_VERSION="1.0.0"
-
-          # 既存のタグを抽出し、末尾が +数字 であるものに限定して最大値を探す
-          LAST_NUMBER=$(git tag | grep "^${BASE_VERSION}+[0-9]\+$" | sed -E "s/^${BASE_VERSION}\+//" | sort -n | tail -n1)
-
-          if [ -z "$LAST_NUMBER" ]; then
+            # pubspec.yaml のパス
+            PUBSPEC_PATH="apps/app/pubspec.yaml"
+        
+            # pubspec.yaml から version を抽出
+            VERSION_LINE=$(grep "^version:" "$PUBSPEC_PATH")
+            # version: 1.0.1+9 → "1.0.1+9"
+            VERSION_STRING=$(echo "$VERSION_LINE" | sed -E 's/version:\s*//')
+        
+            # バージョンネームとコードに分解
+            BASE_VERSION=$(echo "$VERSION_STRING" | cut -d'+' -f1)
+            CURRENT_CODE=$(echo "$VERSION_STRING" | cut -d'+' -f2)
+        
+            echo "Base version: $BASE_VERSION"
+            echo "Current version code: $CURRENT_CODE"
+        
+            # Git タグを確認し、同じ BASE_VERSION の最大コードを探す
+            LAST_NUMBER=$(git tag | grep "^${BASE_VERSION}+[0-9]\+$" | sed -E "s/^${BASE_VERSION}\+//" | sort -n | tail -n1)
+        
+            if [ -z "$LAST_NUMBER" ]; then
             NEXT_NUMBER=1
-          else
+            else
             NEXT_NUMBER=$((LAST_NUMBER + 1))
-          fi
-
-          NEXT_TAG="${BASE_VERSION}+${NEXT_NUMBER}"
-          echo "Next tag will be $NEXT_TAG"
-          echo "tag=$NEXT_TAG" >> $GITHUB_OUTPUT
+            fi
+        
+            NEXT_TAG="${BASE_VERSION}+${NEXT_NUMBER}"
+            echo "Next tag will be $NEXT_TAG"
+            echo "tag=$NEXT_TAG" >> $GITHUB_OUTPUT
 
       - name: Create Git tag
         run: |
