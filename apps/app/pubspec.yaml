@@ -1,8 +1,7 @@
 name: flutter_app
 description: "A new Flutter project."
 publish_to: "none"
-# バージョンの記載無しで、検証
-# version: 1.0.1+9
+version: 2.0.0+5
 
 environment:
   sdk: ^3.7.2
