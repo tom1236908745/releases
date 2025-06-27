@@ -21,58 +21,58 @@ jobs:
           # リモートの状態を同期した状態で、全てのタグを取得
           git fetch --prune --unshallow --tags
 
-      - name: Determine next tag
-        id: next_tag
-        run: |
-            # pubspec.yaml のパス
-            PUBSPEC_PATH="apps/app/pubspec.yaml"
+      # - name: Determine next tag
+      #   id: next_tag
+      #   run: |
+      #       # pubspec.yaml のパス
+      #       PUBSPEC_PATH="apps/app/pubspec.yaml"
         
-            # pubspec.yaml に version: が存在するか確認
-            VERSION_LINE=$(grep "^version:" "$PUBSPEC_PATH" || true)
+      #       # pubspec.yaml に version: が存在するか確認
+      #       VERSION_LINE=$(grep "^version:" "$PUBSPEC_PATH" || true)
 
-            if [ -z "$VERSION_LINE" ]; then
-              echo "$PUBSPEC_PATH に version: の記載がありません。「version: 1.0.0+1」の様な形式で記載してください。)"
-              exit 1  # ワークフローを停止
-            fi
+      #       if [ -z "$VERSION_LINE" ]; then
+      #         echo "$PUBSPEC_PATH に version: の記載がありません。「version: 1.0.0+1」の様な形式で記載してください。)"
+      #         exit 1  # ワークフローを停止
+      #       fi
 
-            # バージョンを抽出
-            # version: 1.0.1+2 → "1.0.1+2"
-            VERSION_STRING=$(echo "$VERSION_LINE" | sed -E 's/version:\s*//')
+      #       # バージョンを抽出
+      #       # version: 1.0.1+2 → "1.0.1+2"
+      #       VERSION_STRING=$(echo "$VERSION_LINE" | sed -E 's/version:\s*//')
         
-            # バージョンネームとコードに分解
-            VERSION_NAME=$(echo "$VERSION_STRING" | cut -d'+' -f1)
+      #       # バージョンネームとコードに分解
+      #       VERSION_NAME=$(echo "$VERSION_STRING" | cut -d'+' -f1)
 
-            echo "Base version: $VERSION_NAME"
+      #       echo "Base version: $VERSION_NAME"
         
-            # バージョンコードを抽出 (バージョンコードはpubspec.yamlのversionからではなく、Gitのタグを元に取得する)
-            # Git タグを確認し、同じ VERSION_NAME の最大コードを探す
-            CURRENT_VERSION_CODE=$(git tag | grep "^${VERSION_NAME}+[0-9]\+$" | sed -E "s/^${VERSION_NAME}\+//" | sort -n | tail -n1)
+      #       # バージョンコードを抽出 (バージョンコードはpubspec.yamlのversionからではなく、Gitのタグを元に取得する)
+      #       # Git タグを確認し、同じ VERSION_NAME の最大コードを探す
+      #       CURRENT_VERSION_CODE=$(git tag | grep "^${VERSION_NAME}+[0-9]\+$" | sed -E "s/^${VERSION_NAME}\+//" | sort -n | tail -n1)
         
-            # バージョンコードを設定
-            # バージョンコードが存在しない場合は 1 を設定
-            if [ -z "$CURRENT_VERSION_CODE" ]; then
-            NEXT_VERSION_CODE=1
-            else
-            # バージョンコードが存在する場合は、最大コードに 1 を加算
-            NEXT_VERSION_CODE=$((CURRENT_VERSION_CODE + 1))
-            fi
+      #       # バージョンコードを設定
+      #       # バージョンコードが存在しない場合は 1 を設定
+      #       if [ -z "$CURRENT_VERSION_CODE" ]; then
+      #       NEXT_VERSION_CODE=1
+      #       else
+      #       # バージョンコードが存在する場合は、最大コードに 1 を加算
+      #       NEXT_VERSION_CODE=$((CURRENT_VERSION_CODE + 1))
+      #       fi
         
-            # バージョンを設定
-            NEXT_TAG="${VERSION_NAME}+${NEXT_VERSION_CODE}"
-            echo "Next tag will be $NEXT_TAG"
-            echo "tag=$NEXT_TAG" >> $GITHUB_OUTPUT
+      #       # バージョンを設定
+      #       NEXT_TAG="${VERSION_NAME}+${NEXT_VERSION_CODE}"
+      #       echo "Next tag will be $NEXT_TAG"
+      #       echo "tag=$NEXT_TAG" >> $GITHUB_OUTPUT
 
-      - name: Create Git tag
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+      # - name: Create Git tag
+      #   run: |
+      #     git config user.name "github-actions"
+      #     git config user.email "github-actions@github.com"
 
-          git tag ${{ steps.next_tag.outputs.tag }}
-          git push origin ${{ steps.next_tag.outputs.tag }}
+      #     git tag ${{ steps.next_tag.outputs.tag }}
+      #     git push origin ${{ steps.next_tag.outputs.tag }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.next_tag.outputs.tag }}
-          name: Release ${{ steps.next_tag.outputs.tag }}
+          tag_name: 2.0.0
+          name: Release 2.0.0
           generate_release_notes: true
