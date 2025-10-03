@@ -45,8 +45,20 @@ jobs:
             echo "Base version: $VERSION_NAME"
         
             # バージョンコードを抽出 (バージョンコードはpubspec.yamlのversionからではなく、Gitのタグを元に取得する)
-            # Git タグを確認し、同じ VERSION_NAME の最大コードを探す
-            CURRENT_VERSION_CODE=$(git tag | grep "^${VERSION_NAME}([0-9]\+)$" | sed -E "s/^${VERSION_NAME}\(([0-9]+)\)$/\1/" | sort -n | tail -n1)
+            # Git タグを確認し、同じ VERSION_NAME の最大コードを探す (両方の形式に対応: x.y.z+n と x.y.z(n))
+            CODE_WITH_PLUS=$(git tag | grep "^${VERSION_NAME}+[0-9]\+$" | sed -E "s/^${VERSION_NAME}\+//" | sort -n | tail -n1)
+            CODE_WITH_PAREN=$(git tag | grep "^${VERSION_NAME}([0-9]\+)$" | sed -E "s/^${VERSION_NAME}\(([0-9]+)\)$/\1/" | sort -n | tail -n1)
+            
+            # 両方の形式から最大値を取得
+            if [ -n "$CODE_WITH_PLUS" ] && [ -n "$CODE_WITH_PAREN" ]; then
+              CURRENT_VERSION_CODE=$(echo -e "$CODE_WITH_PLUS\n$CODE_WITH_PAREN" | sort -n | tail -n1)
+            elif [ -n "$CODE_WITH_PLUS" ]; then
+              CURRENT_VERSION_CODE=$CODE_WITH_PLUS
+            elif [ -n "$CODE_WITH_PAREN" ]; then
+              CURRENT_VERSION_CODE=$CODE_WITH_PAREN
+            else
+              CURRENT_VERSION_CODE=""
+            fi
         
             # バージョンコードを設定
             # バージョンコードが存在しない場合は 1 を設定
