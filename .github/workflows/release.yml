@@ -46,7 +46,7 @@ jobs:
         
             # バージョンコードを抽出 (バージョンコードはpubspec.yamlのversionからではなく、Gitのタグを元に取得する)
             # Git タグを確認し、同じ VERSION_NAME の最大コードを探す
-            CURRENT_VERSION_CODE=$(git tag | grep "^${VERSION_NAME}+[0-9]\+$" | sed -E "s/^${VERSION_NAME}\+//" | sort -n | tail -n1)
+            CURRENT_VERSION_CODE=$(git tag | grep "^${VERSION_NAME}([0-9]\+)$" | sed -E "s/^${VERSION_NAME}\(([0-9]+)\)$/\1/" | sort -n | tail -n1)
         
             # バージョンコードを設定
             # バージョンコードが存在しない場合は 1 を設定
