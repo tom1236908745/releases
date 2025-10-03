@@ -67,8 +67,8 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git tag ${{ steps.next_tag.outputs.tag }}
-          git push origin ${{ steps.next_tag.outputs.tag }}
+          git tag "${{ steps.next_tag.outputs.tag }}"
+          git push origin "${{ steps.next_tag.outputs.tag }}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2.3.2
