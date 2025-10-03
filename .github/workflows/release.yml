@@ -70,7 +70,7 @@ jobs:
             fi
         
             # バージョンを設定
-            NEXT_TAG="${VERSION_NAME}+${NEXT_VERSION_CODE}"
+            NEXT_TAG="${VERSION_NAME}(${NEXT_VERSION_CODE})"
             echo "Next tag will be $NEXT_TAG"
             echo "tag=$NEXT_TAG" >> $GITHUB_OUTPUT
 
